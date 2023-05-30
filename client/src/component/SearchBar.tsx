@@ -12,7 +12,6 @@ export default function SearchBar() {
         navigate("/news", {
           state: { keyword },
         });
-        // setKeyword("");
       } else {
         alert("검색어는 2글자 이상 입력해주세요.");
       }

@@ -2,21 +2,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import CardNews from "../component/CardNews";
 import Header from "../component/Header";
-import { getHeadline } from "../util/apiCollection";
 import { useInView } from "react-intersection-observer";
 import ScrollLoader from "../component/ScrollLoader";
-
-interface getHeadlineType {
-  news: [
-    articles: [
-      title: string,
-      author: string,
-      published_date: string,
-      rights: string,
-      media: string
-    ]
-  ];
-}
+import { getHeadlineType } from "../util/typeCollection";
 
 export default function HeadlinePage() {
   const [newsData, setNewsData] = useState<getHeadlineType[]>([]);
@@ -26,7 +14,7 @@ export default function HeadlinePage() {
   const countryArr = ["KR", "JP", "GB", "CN", "US", "CA"];
   const topicArr = [
     "news",
-    "sports",
+    "sport",
     "tech",
     "world",
     "finance",
@@ -74,14 +62,10 @@ export default function HeadlinePage() {
       )
       .then((res) => {
         if (signal.aborted) return;
-        console.log("axios 요청완료");
-        console.log("ddd", res.data.total_pages);
-        console.log("use1", offset);
-        setNewsData([res.data]);
+        setNewsData(res.data);
         setDataLoading(true);
         if (offset <= res.data.total_pages) {
           setHasNext(true);
-          setOffset(offset + 1);
           console.log("useE", offset);
         } else {
           setHasNext(false);
@@ -99,51 +83,16 @@ export default function HeadlinePage() {
     };
   }, [select, topic]);
 
-  // 데이터 처음 요청 이후 요청
-  const moreData = () => {
-    axios
-      .get(
-        `https://api.newscatcherapi.com/v2/latest_headlines?countries=${select}&topic=${topic}&page_size=${12}&page=${offset}`,
-        {
-          headers: {
-            "x-api-key": `${process.env.REACT_APP_API_KEY}`,
-          },
-        }
-      )
-      .then((res) => {
-        const resData = res.data;
-        setNewsData([...newsData, resData]);
-        setDataLoading(true);
-        setIsLoading(false);
-        if (offset <= res.data.total_pages) {
-          setHasNext(true);
-          console.log("useE2", offset);
-        } else {
-          setHasNext(false);
-        }
-      })
-      .catch((err: unknown) => {
-        console.error(err);
-        setDataLoading(true);
-        setIsLoading(false);
-      });
-  };
-
   useEffect(() => {
     if (hasNext && inview) {
       setIsLoading(true);
-      setTimeout(async () => {
-        moreData();
-        console.log("second", offset);
-      }, 1000);
+      setTimeout(async () => {}, 1000);
     }
   }, [inview]);
 
   if (!dataLoading) {
     return <ScrollLoader />;
   }
-
-  console.log("end", offset);
 
   return (
     <div className="container">

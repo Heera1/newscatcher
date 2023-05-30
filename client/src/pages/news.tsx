@@ -23,15 +23,12 @@ export default function NewsPage() {
   const [category, setCategory] = useState("relevancy");
   const selectCategory = (e: React.MouseEvent<HTMLButtonElement>) => {
     const { value } = e.currentTarget;
-    console.log("value", value);
     setCategory(value);
   };
 
   const [newsData, setNewsData] = useState<getNewsDataType[]>([]);
-  console.log(newsData);
   const [keyword, setKeyword] = useState(location.state.keyword);
   const date = "2023/05/20";
-  // new Date().toLocaleDateString("en-US");
   const [contries, setContries] = useState("US");
   const [offset, setOffset] = useState(1);
 
@@ -53,13 +50,8 @@ export default function NewsPage() {
             }
           );
           if (signal.aborted) return;
-          console.log("axios 요청완료");
-          console.log("데이터", res.data);
           setNewsData(res.data);
           setIsLoading(true);
-          if (offset >= res.data.total_papes) {
-            // 페이지네이션으로 만들어야함
-          }
         } catch (err) {
           if (signal.aborted) return;
           console.error(err);
@@ -86,20 +78,22 @@ export default function NewsPage() {
         <div className="flex items-center justify-center my-20">
           <SearchBar></SearchBar>
         </div>
-        <div>
-          <p className="text-2xl font-bold text-center">Contry</p>
+        <div className="headline-content">
           <div>
-            {categoryArr &&
-              categoryArr.map((item, idx) => (
-                <button
-                  key={idx}
-                  className="p-2 m-2 mb-10 bg-gray-200 rounded-lg"
-                  onClick={selectCategory}
-                  value={item}
-                >
-                  {item}
-                </button>
-              ))}
+            <p className="text-2xl font-bold text-center">Sort</p>
+            <div>
+              {categoryArr &&
+                categoryArr.map((item, idx) => (
+                  <button
+                    key={idx}
+                    className="p-2 m-2 mb-10 bg-gray-200 rounded-lg"
+                    onClick={selectCategory}
+                    value={item}
+                  >
+                    {item}
+                  </button>
+                ))}
+            </div>
           </div>
         </div>
         <div>

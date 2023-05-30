@@ -28,3 +28,15 @@ export interface CardNewsPropsType {
     rank: number
   ];
 }
+
+export interface getHeadlineType {
+  news: [
+    articles: [
+      title: string,
+      author: string,
+      published_date: string,
+      rights: string,
+      media: string
+    ]
+  ];
+}
