@@ -38,14 +38,12 @@ export default function NewsPage() {
   const [select, setSelect] = useState("15개씩");
   const [spread, setSpread] = useState(false);
   const handleSpreadClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault(); //이거 중단 왜 시키는 거지?
     setSpread(!spread);
   };
   const handleSpreadSelect = (
     e: React.MouseEvent<HTMLButtonElement>,
     select: number
   ) => {
-    e.preventDefault();
     const { value } = e.currentTarget;
     setSpread(!spread);
     setSelect(value);
@@ -84,14 +82,13 @@ export default function NewsPage() {
           if (signal.aborted) return;
           const resData = (res as AxiosResponse<any, any>).data.articles;
           const resInfo = (res as AxiosResponse<any, any>).data.total_datas;
-          console.log("news!!!!!!!!!", (res as AxiosResponse<any, any>).data);
           setDataInfo(resInfo);
           setNewsData(resData);
-          setIsLoading(true); //이 부분 수정해야할 듯
+          setIsLoading(true);
         } catch (err: unknown) {
           if (signal.aborted) return;
           console.error(err);
-          setIsLoading(true); // 이것도 수정 다른 곳으로 뺄 수 있을 거 같은데
+          setIsLoading(true);
         }
       };
       getData();
