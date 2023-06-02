@@ -38,7 +38,6 @@ export default function LoginPage() {
             <input
               type="text"
               id="id"
-              name="id"
               minLength={5}
               maxLength={12}
               value={userId}
@@ -52,7 +51,6 @@ export default function LoginPage() {
             <input
               type="password"
               id="password"
-              name="password"
               minLength={5}
               maxLength={12}
               value={password}

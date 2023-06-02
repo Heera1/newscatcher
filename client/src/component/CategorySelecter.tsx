@@ -5,11 +5,9 @@ export default function CategorySelecter({ arr }: any) {
   const [spread, setSpread] = useState(false);
 
   const handleSpreadClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault(); //이거 중단 왜 시키는 거지?
     setSpread(!spread);
   };
   const handleSpreadSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
     setSpread(!spread);
     setSelect(e.currentTarget.value);
   };
