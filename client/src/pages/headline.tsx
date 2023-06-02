@@ -1,197 +1,110 @@
-import axios from "axios";
+import { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
-import CardNews from "../component/CardNews";
-import Header from "../component/Header";
-import { getHeadline } from "../util/apiCollection";
-import { useInView } from "react-intersection-observer";
-import ScrollLoader from "../component/ScrollLoader";
 
-interface getHeadlineType {
-  news: [
-    articles: [
-      title: string,
-      author: string,
-      published_date: string,
-      rights: string,
-      media: string
-    ]
-  ];
-}
+import CardNews from "../component/CardNews";
+import ScrollLoader from "../component/ScrollLoader";
+import { CardNewsPropsType } from "../util/typeCollection";
+import useIntersectionObserver from "../util/useIO";
+import { countryArr, topicArr } from "../util/arrayCollection";
+import SelectButton from "../component/SelectButton";
+import { getHeadlineDataAPI } from "../util/apiCollection";
 
 export default function HeadlinePage() {
-  const [newsData, setNewsData] = useState<getHeadlineType[]>([]);
-  const [select, setSelect] = useState("US");
+  const [newsData, setNewsData] = useState<CardNewsPropsType[]>([]);
+  const [country, setCountry] = useState("US");
   const [topic, setTopic] = useState("news");
 
-  const countryArr = ["KR", "JP", "GB", "CN", "US", "CA"];
-  const topicArr = [
-    "news",
-    "sports",
-    "tech",
-    "world",
-    "finance",
-    "politics",
-    "business",
-    "economics",
-    "entertainment",
-    "beauty",
-    "travel",
-    "music",
-    "food",
-    "science",
-    "gaming",
-    "energy",
-  ];
-
-  const selectContry = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const { value } = e.currentTarget;
-    setSelect(value);
-  };
-
-  const selectTopic = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const { value } = e.currentTarget;
-    setTopic(value);
-  };
-
-  const [hasNext, setHasNext] = useState(false);
-  const [ref, inview] = useInView({ threshold: 0 });
   const [offset, setOffset] = useState(1);
   const [dataLoading, setDataLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+  const getData = async () => {
     const controller = new AbortController();
     const signal = controller.signal;
-    axios
-      .get(
-        `https://api.newscatcherapi.com/v2/latest_headlines?countries=${select}&topic=${topic}&page_size=${12}&page=${offset}`,
-        {
-          headers: {
-            "x-api-key": `${process.env.REACT_APP_API_KEY}`,
-          },
-          signal,
-        }
-      )
-      .then((res) => {
-        if (signal.aborted) return;
-        console.log("axios 요청완료");
-        console.log("ddd", res.data.total_pages);
-        console.log("use1", offset);
-        setNewsData([res.data]);
-        setDataLoading(true);
-        if (offset <= res.data.total_pages) {
-          setHasNext(true);
-          setOffset(offset + 1);
-          console.log("useE", offset);
-        } else {
-          setHasNext(false);
-        }
-      })
-      .catch((err: unknown) => {
-        if (signal.aborted) return;
-        console.error(err);
-        setDataLoading(true);
-      });
-
+    try {
+      const res = await getHeadlineDataAPI(country, 9, offset, topic, signal);
+      if (signal.aborted) return;
+      const resData = (res as AxiosResponse<any, any>).data.articles;
+      setNewsData((prev) => prev.concat(resData));
+      setDataLoading(true);
+      setIsLoading(false);
+      setOffset((prev) => prev + 1);
+    } catch (err: unknown) {
+      if (signal.aborted) return;
+      console.error(err);
+      setDataLoading(true);
+    }
     return () => {
-      console.log("마운트 해체 및 axios 요청 취소");
+      console.log("마운트 해제 및 axios 요청취소");
       controller.abort();
     };
-  }, [select, topic]);
-
-  // 데이터 처음 요청 이후 요청
-  const moreData = () => {
-    axios
-      .get(
-        `https://api.newscatcherapi.com/v2/latest_headlines?countries=${select}&topic=${topic}&page_size=${12}&page=${offset}`,
-        {
-          headers: {
-            "x-api-key": `${process.env.REACT_APP_API_KEY}`,
-          },
-        }
-      )
-      .then((res) => {
-        const resData = res.data;
-        setNewsData([...newsData, resData]);
-        setDataLoading(true);
-        setIsLoading(false);
-        if (offset <= res.data.total_pages) {
-          setHasNext(true);
-          console.log("useE2", offset);
-        } else {
-          setHasNext(false);
-        }
-      })
-      .catch((err: unknown) => {
-        console.error(err);
-        setDataLoading(true);
-        setIsLoading(false);
-      });
   };
 
   useEffect(() => {
-    if (hasNext && inview) {
-      setIsLoading(true);
-      setTimeout(async () => {
-        moreData();
-        console.log("second", offset);
-      }, 1000);
+    getData();
+  }, [country, topic]);
+
+  const onIntersect: IntersectionObserverCallback = async (
+    [entry],
+    observer
+  ) => {
+    if (entry.isIntersecting && !isLoading) {
+      observer.unobserve(entry.target);
+      await getData();
+      observer.observe(entry.target);
     }
-  }, [inview]);
+  };
+
+  //현재 대상 및 option 상태를 props로 전달
+  const { setTarget } = useIntersectionObserver({
+    root: null,
+    rootMargin: "0px",
+    threshold: 0,
+    onIntersect,
+  });
+
+  const selectCategory = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const { value, id } = e.currentTarget;
+    setNewsData([]);
+    setOffset(1);
+    if (id === "Country") {
+      setCountry(value);
+    } else {
+      setTopic(value);
+    }
+  };
 
   if (!dataLoading) {
     return <ScrollLoader />;
   }
 
-  console.log("end", offset);
-
   return (
-    <div className="container">
-      <Header />
-      <div className="m-auto">
-        <div className="mt-10 headline-content">
-          <div>
-            <p className="text-2xl font-bold text-center">Contry</p>
-            <div>
-              {countryArr &&
-                countryArr.map((item, idx) => (
-                  <button
-                    key={idx}
-                    className="p-2 m-2 mb-10 bg-gray-200 rounded-lg"
-                    onClick={selectContry}
-                    value={item}
-                  >
-                    {item}
-                  </button>
-                ))}
-            </div>
-          </div>
-        </div>
-        <div className="mb-10 headline-content">
-          <div>
-            <p className="text-2xl font-bold text-center">Topic</p>
-            <div className="w-[46rem]">
-              {topicArr &&
-                topicArr.map((item, idx) => (
-                  <button
-                    key={idx}
-                    className="p-2 mb-10 mr-2 bg-gray-200 rounded-lg"
-                    onClick={selectTopic}
-                    value={item}
-                  >
-                    {item}
-                  </button>
-                ))}
-            </div>
-          </div>
-        </div>
-        <div>
-          <CardNews news={(newsData as any).articles} />
-        </div>
+    <div className="p-4">
+      <div className="flex m-auto mt-10 mb-20">
+        <SelectButton
+          arr={countryArr}
+          onClick={selectCategory}
+          id="Country"
+          butClick={country}
+        />
+        <SelectButton
+          arr={topicArr}
+          onClick={selectCategory}
+          id="Topic"
+          butClick={topic}
+        />
       </div>
-      <div ref={ref} className="flex justify-center p-8">
-        {isLoading && <ScrollLoader />}
+      <div>
+        <CardNews data={newsData} />
       </div>
+      {dataLoading && (
+        <div
+          ref={setTarget}
+          className="flex p-10 mt-auto border-4 border-red-400"
+        >
+          {isLoading && <ScrollLoader />}
+        </div>
+      )}
     </div>
   );
 }

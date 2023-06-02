@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function SearchBar() {
+export default function KeywordSearchBar() {
   const [keyword, setKeyword] = useState("");
   const navigate = useNavigate();
 
@@ -20,7 +20,8 @@ export default function SearchBar() {
   };
 
   return (
-    <form>
+    // <form className="mx-auto">
+    <form className="">
       <input
         type="search"
         className="w-[38rem] p-4 rounded-2xl text-black"
@@ -33,7 +34,7 @@ export default function SearchBar() {
         minLength={2}
         maxLength={20}
         name="search"
-      ></input>
+      />
     </form>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import Header from "../component/Header";
 import { useNavigate } from "react-router-dom";
+
 import { useLogin } from "../store/LoginState";
+import { userArr } from "../util/arrayCollection";
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
@@ -9,65 +10,63 @@ export default function LoginPage() {
   const navigator = useNavigate();
   const { setIsLogin } = useLogin();
 
-  const LoginReq = () => {
-    if (userId === "codestate1") {
-      if (password === "12345678") {
-        alert("로그인 완료");
-        setIsLogin(true);
-        navigator("/");
-      }
+  const signin = () => {
+    const user = userArr.find(
+      (user) => user.email === userId && user.password === password
+    );
+
+    if (user === undefined) {
+      alert("찾을 수 없는 사용자입니다.");
+      return;
     }
-    if (userId === "codestate2") {
-      if (password === "87654321") {
-        alert("로그인 완료");
-        setIsLogin(true);
-        navigator("/");
-      }
-    }
+    alert("로그인 완료!");
+    setIsLogin(true);
+    navigator("/");
+    localStorage.setItem(
+      "accessToken",
+      `${process.env.REACT_APP_ACCESS_TOKEN}`
+    );
+    return user;
   };
+
   return (
-    <div className="container">
-      <Header></Header>
-      <div className="h-[30rem] flex justify-center items-center">
-        <div className="flex w-1/3 bg-gray-200 h-72 rounded-2xl">
-          <div className="inline-block m-auto">
-            <div className="flex mb-4">
-              <p className="w-[8rem] text-lg font-semibold">ID</p>
-              <input
-                type="text"
-                id="id"
-                name="id"
-                minLength={5}
-                maxLength={12}
-                value={userId}
-                onChange={(e) => {
-                  setUserId(e.target.value);
-                }}
-                className=""
-              ></input>
-            </div>
-            <div className="flex mb-8">
-              <p className="w-[8rem] text-lg font-semibold">PASSWORD</p>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                minLength={5}
-                maxLength={12}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-                className=""
-              ></input>
-            </div>
-            <button
-              onClick={LoginReq}
-              className="w-full px-6 py-2 text-lg font-medium text-white bg-slate-600 rounded-xl"
-            >
-              Login
-            </button>
+    <div className="flex justify-center h-screen mt-36">
+      <div className="flex w-[28rem] p-10 justify-center items-center border-4 border-red-500 bg-gray-200 h-72 rounded-2xl">
+        <div className="inline-block">
+          <div className="flex mb-4">
+            <label className="login-text">ID</label>
+            <input
+              type="text"
+              id="id"
+              name="id"
+              minLength={5}
+              maxLength={12}
+              value={userId}
+              onChange={(e) => {
+                setUserId(e.target.value);
+              }}
+            ></input>
           </div>
+          <div className="flex mb-8">
+            <label className="login-text">PASSWORD</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              minLength={5}
+              maxLength={12}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+            ></input>
+          </div>
+          <button
+            onClick={signin}
+            className="w-full px-6 py-2 text-white login-text bg-slate-600 rounded-xl"
+          >
+            Login
+          </button>
         </div>
       </div>
     </div>

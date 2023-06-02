@@ -18,9 +18,18 @@ code {
 
 @layer components {
   .container {
-    @apply w-[80rem] border-2 border-blue-700 m-auto bg-gray-400;
+    @apply w-[80rem] m-auto bg-gray-400 h-fit;
   }
   .headline-content {
     @apply flex items-center justify-center m-auto;
+  }
+  .headline-text {
+    @apply text-2xl font-bold text-center mb-3;
+  }
+  .login-text {
+    @apply w-[8rem] text-lg font-semibold;
+  }
+  .pagination-but {
+    @apply bg-gray-200 mx-1 px-3 py-1.5 rounded-lg border border-gray-400 cursor-pointer;
   }
 }

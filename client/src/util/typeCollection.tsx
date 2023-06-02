@@ -1,4 +1,4 @@
-export interface getNewsDataType {
+export interface GetNewsDataType {
   articles: ArticlesType[];
   page: number;
   page_size: number;
@@ -13,18 +13,35 @@ export interface ArticlesType {
   published_date: string;
   rights: string;
   media: string;
-  summary: string;
-  rank: number;
+  summary?: string;
+  rank?: number;
 }
 
 export interface CardNewsPropsType {
-  news: [
-    title: string,
-    author: string,
-    published_date: string,
-    rights: string,
-    media: string,
-    summary: string,
-    rank: number
-  ];
+  data: ArticlesType[];
+}
+
+export interface UseIOProps {
+  root?: null;
+  rootMargin?: string;
+  threshold?: number;
+  onIntersect: IntersectionObserverCallback;
+}
+
+export interface SelectCategoryButProps {
+  arr: string[];
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  id: string;
+  butClick: string;
+}
+
+export interface ResponseType {
+  data: GetNewsDataType;
+}
+
+export interface PaginationProps {
+  totalPage: number;
+  curPage: number;
+  setCurPage: React.Dispatch<React.SetStateAction<number>>;
+  pageCount: number;
 }
